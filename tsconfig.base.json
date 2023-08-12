@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ESNext",
+    "sourceMap": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "moduleResolution": "node",
+    "allowJs": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+		"skipDefaultLibCheck": true,
+    "pretty": true,
+		"strict": true,
+    "alwaysStrict": true,
+		"strictNullChecks": true,
+    "noImplicitAny": true,
+    "resolveJsonModule": true,
+		"noUncheckedIndexedAccess": true,
+    "outDir": "./build/",
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "src/*"
+  ]
+}
