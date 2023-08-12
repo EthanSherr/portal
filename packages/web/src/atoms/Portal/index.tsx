@@ -8,7 +8,7 @@ export type PortalProps = {
 export const Portal: FC<PortalProps> = ({ url }) => {
   return (
     <mesh position={[0, 0, 0]} >
-      <planeGeometry args={[5, 5]} />
+      <planeGeometry args={[3, 3]} />
       <Suspense fallback={<meshBasicMaterial color='black' />}>
         <VideoMaterial url={url} />
       </Suspense>
