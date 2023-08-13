@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "pnpm nodemon"
+    "start": "nodemon --watch src --exec node -r dotenv/config --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts"
   },
   "keywords": [],
   "author": "",
