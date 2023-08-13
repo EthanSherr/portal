@@ -3,7 +3,8 @@ import { Link } from "react-router-dom"
 const links = [
   './PortalCamPage',
   './PortalXrPage',
-  './PortalZapparPage'
+  './PortalZapparPage',
+  './SocketPage'
 ]
 
 export const HomePage = () => {

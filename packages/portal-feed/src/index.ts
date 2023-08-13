@@ -1,7 +1,5 @@
-import io, { Socket } from 'socket.io-client'
-import { StreamCamera, Codec, Flip, SensorMode } from 'pi-camera-connect'
-import { sendFakeImg } from './fakeSendImg'
-import { attachNodejsCam } from './attachNodejsCam'
+import io from 'socket.io-client'
+import { attachFakeFeed } from './attachFakeFeed'
 
 const ROOT = 'http://10.0.0.184'
 const PORT = 4000
@@ -12,6 +10,8 @@ const main = async () => {
   const url = `${[ROOT, PORT].join(':')}/iot`
   const socket = io(url)
 
+  let tearDown = new Array<() => void>()
+
   socket.on('connect', () => {
     console.log('Connected to the server', socket.id, 'at', url)
 
@@ -19,8 +19,13 @@ const main = async () => {
     socket.emit("pi-cam-init", CAMERA_ID)
 
     console.log('sending fake img')
-    sendFakeImg(socket, CAMERA_ID)
+    tearDown.push(attachFakeFeed(socket, CAMERA_ID))
+
     // attachNodejsCam(socket, CAMERA_ID) // TODO
+  })
+  socket.on('disconnect', () => {
+    tearDown.forEach(teardownFn => teardownFn())
+    tearDown = []
   })
   socket.on('new-consumer', (data) => {
     console.log(data + ' has join the stream');

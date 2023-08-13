@@ -2,7 +2,11 @@ import { Socket, Server as SocketIOServer } from 'socket.io'
 import http from 'http'
 
 export const createSocketIOServer = (httpServer: http.Server) => {
-  const io = new SocketIOServer(httpServer)
+  const io = new SocketIOServer(httpServer, {
+    cors: {
+      origin: '*'
+    }
+  })
 
   setupVideoStream(io)
   setupChatExample(io)
@@ -20,11 +24,11 @@ const setupVideoStream = (io: SocketIOServer) => {
 
   io.of('iot').on('connection', socket => {
     const address = socket.handshake.address
-    console.log('user of iot connected... address: ', address)
+    console.log(`on('connection') `, { address })
 
     // handle video stream init
     socket.on('pi-cam-init', (iotDeviceId) => {
-      console.log("Camera " + iotDeviceId + " is not online")
+      console.log(`on('pi-cam-init') `, { iotDeviceId })
       const roomName = getRoomName(iotDeviceId)
       const socketForIodDevice = iotDevices.get(iotDeviceId)
       if (!socketForIodDevice) {
@@ -43,14 +47,14 @@ const setupVideoStream = (io: SocketIOServer) => {
         iotDevices.set(iotDeviceId, socket)
       }
 
-      console.log('iotDevices', iotDevices)
-      console.log('rooms', rooms)
+      // console.log('iotDevices', iotDevices)
+      // console.log('rooms', rooms)
     })
 
     // handle video stream
     socket.on('pi-video-stream', (data, res) => {
       const roomName = getRoomName(data)
-      console.log('on pi-video-stream', roomName)
+      // console.log(`on('pi-video-stream')`, { roomName, reslength: res.length })
       socket.to(roomName).emit('consumer-receive-feed', res)
     })
 
@@ -62,16 +66,19 @@ const setupVideoStream = (io: SocketIOServer) => {
       rooms.delete(roomName)
 
       socket.to(roomName).emit('pi-terminate-broacast')
-      res('Pi camera disconnected from server.')
+      // res('Pi camera disconnected from server.')
     })
 
     socket.on('consumer-start-viewing', (iotDevice, res) => {
-      console.log('start stream from client ', address, ' on pi camera', iotDevice)
 
       if (!iotDevices.has(iotDevice)) {
-        res('Camera is not online')
+        // res('Camera is not online')
+        console.error(`on('consumer-start-viewing') No device found!`, { iotDevice })
+        console.error('iotDevices', iotDevices)
         return
       }
+      console.log(`on('consumer-start-viewing')`, { address, iotDevice })
+
 
       const roomName = getRoomName(iotDevice)
       socket.join(roomName)
@@ -84,7 +91,7 @@ const setupVideoStream = (io: SocketIOServer) => {
       cameraSocket.emit('new-consumer', socket.id, () => {
         console.log('new consumer has joined ', iotDevice, 'stream')
       })
-      res("Connect to " + cameraSocket.id + " steam");
+      // res("Connect to " + cameraSocket.id + " steam");
 
 
     })
