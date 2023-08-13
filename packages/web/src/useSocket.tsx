@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
-import { io } from 'socket.io-client'
+import { Socket, io } from 'socket.io-client'
 
 // TODO better socket management & teardown?
 const url = `http://localhost:4000/iot`
-const socket = io(url)
+const socket: Socket = io(url)
 
 export const useSocket = <Response,>(
   eventName: string,
   handleCustomEvent: (event: Response) => void
-) => {
+): {
+  connected: boolean,
+  socket: Socket
+} => {
   const [connected, setConnected] = useState(socket.connected)
 
   const handleCustomEventRef = useRef(handleCustomEvent)
