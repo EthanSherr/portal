@@ -26,7 +26,8 @@ const setupVideoStream = (io: SocketIOServer) => {
     socket.on('pi-cam-init', (iotDeviceId) => {
       console.log("Camera " + iotDeviceId + " is not online")
       const roomName = getRoomName(iotDeviceId)
-      if (!iotDevices.has(iotDeviceId)) {
+      const socketForIodDevice = iotDevices.get(iotDeviceId)
+      if (!socketForIodDevice) {
         socket.join(roomName)
 
         if (!rooms.has(roomName)) {
@@ -35,9 +36,9 @@ const setupVideoStream = (io: SocketIOServer) => {
         rooms.get(roomName)!.set(socket.id, socket)
 
         iotDevices.set(iotDeviceId, socket)
-      } else if (iotDevices.get(iotDeviceId) !== socket) {
+      } else if (socketForIodDevice !== socket) {
         console.log('camera socket different from map, adding new socket into map')
-        iotDeviceId.get(iotDeviceId).leave(roomName)
+        socketForIodDevice.leave(roomName)
         socket.join(roomName)
         iotDevices.set(iotDeviceId, socket)
       }
