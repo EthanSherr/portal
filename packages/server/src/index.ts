@@ -1,4 +1,5 @@
 import express from 'express'
+import https from 'https'
 import http from 'http'
 import path from 'path'
 import { createSocketIOServer } from './createSocketIOServer'
@@ -12,14 +13,15 @@ const main = async () => {
   // }, app)
 
   const app = express()
-  const httpServer = http.createServer(app)
-  createSocketIOServer(httpServer)
+  // const httpsServer = https.createServer(app)
+  const server = http.createServer(app)
+  createSocketIOServer(server)
 
   app.get('/', (req, res) => {
     res.sendFile(path.resolve('./public/index.html'));
   });
 
-  httpServer.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`started on *:${PORT}`)
   })
 }

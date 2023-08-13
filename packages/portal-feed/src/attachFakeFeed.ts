@@ -1,10 +1,9 @@
 import { Socket } from "socket.io-client"
 
-const CAM_INTERVAL = 33
+const CAM_INTERVAL = 5 * 1000 //33
 
 export const attachFakeFeed = (socket: Socket, cameraId: string) => {
   const handle = setInterval(() => {
-    // console.log('sending pic')
     sendFakeImg(socket, cameraId)
   }, CAM_INTERVAL)
 

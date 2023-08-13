@@ -1,4 +1,5 @@
 import { Socket, Server as SocketIOServer } from 'socket.io'
+import https from 'https'
 import http from 'http'
 
 export const createSocketIOServer = (httpServer: http.Server) => {
@@ -54,7 +55,7 @@ const setupVideoStream = (io: SocketIOServer) => {
     // handle video stream
     socket.on('pi-video-stream', (data, res) => {
       const roomName = getRoomName(data)
-      // console.log(`on('pi-video-stream')`, { roomName, reslength: res.length })
+      console.log(`on('pi-video-stream')`, { roomName, reslength: res.length })
       socket.to(roomName).emit('consumer-receive-feed', res)
     })
 
