@@ -20,7 +20,7 @@ export const PicturePortal: FC<PicturePortalProps> = ({ cameraId }) => {
 export const VideoMaterial: FC<{ cameraId: string }> = ({ cameraId }) => {
   const [data, setData] = useState<string>()
 
-  const { connected, socket } = useSocket('consumer-receive-feed', (data: string) => {
+  const { connected, socket } = useSocket('iot', 'consumer-receive-feed', (data: string) => {
     console.log('received data', data.length)
     setData(data)
   })

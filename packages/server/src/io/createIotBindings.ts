@@ -1,25 +1,12 @@
-import { Socket, Server as SocketIOServer } from 'socket.io'
-import https from 'https'
-import http from 'http'
-
-export const createSocketIOServer = (httpServer: http.Server | https.Server) => {
-  const io = new SocketIOServer(httpServer, {
-    cors: {
-      origin: '*'
-    }
-  })
-
-  setupVideoStream(io)
-  setupChatExample(io)
-
-  io.sockets.on("error", e => {
-    console.error('io.socket error:\n', e)
-  })
-}
-
 // https://chinleongkeh.medium.com/video-stream-from-raspberry-pi-using-express-js-socket-io-pi-camera-connect-2e9b79a288ea
-const setupVideoStream = (io: SocketIOServer) => {
+import { Socket, Server as SocketIOServer } from 'socket.io'
 
+const getRoomName = (data: string): RoomName => `room-${data}`
+
+type RoomName = string
+type IOTDeviceId = string
+
+export const createIotBindings = (io: SocketIOServer) => {
   const iotDevices = new Map<IOTDeviceId, Socket>()
   const rooms = new Map<RoomName, Map<string, Socket>>()
 
@@ -98,24 +85,4 @@ const setupVideoStream = (io: SocketIOServer) => {
     })
 
   })
-
 }
-
-const setupChatExample = (io: SocketIOServer) => {
-  io.on('connection', (socket) => {
-    console.log('user connected')
-    socket.on('chat message', (msg) => {
-      // emit to all except this socket, i think
-      io.emit('chat message', msg)
-    });
-    socket.on('disconnect', () => {
-      console.log('user disconnected')
-    })
-  })
-}
-
-
-const getRoomName = (data: string): RoomName => `room-${data}`
-
-type RoomName = string
-type IOTDeviceId = string

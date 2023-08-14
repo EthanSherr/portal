@@ -3,7 +3,7 @@ import https from 'https'
 import http from 'http'
 import path from 'path'
 
-import { createSocketIOServer } from './createSocketIOServer'
+import { createSocketIOServer } from './io/createSocketIOServer'
 import { httpsKeyFromStoreOrCert } from './httpsKeyFromStoreOrCert'
 
 const PORT = 4000

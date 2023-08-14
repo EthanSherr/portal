@@ -4,7 +4,8 @@ const links = [
   './PortalCamPage',
   './PortalXrPage',
   './PortalZapparPage',
-  './SocketPage'
+  './SocketPage',
+  './WebRTCPage'
 ]
 
 export const HomePage = () => {

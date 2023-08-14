@@ -9,7 +9,7 @@ const CAMERA_ID = `Cam-1`
 export const SocketPage = () => {
   const [data, setData] = useState<string>()
 
-  const { connected, socket } = useSocket('consumer-receive-feed', (data: string) => {
+  const { connected, socket } = useSocket('iot', 'consumer-receive-feed', (data: string) => {
     console.log('data is set', data.length)
     setData(data)
   })

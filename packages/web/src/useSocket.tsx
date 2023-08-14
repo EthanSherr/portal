@@ -1,24 +1,33 @@
 import { useEffect, useRef, useState } from 'react'
 import { Socket, io } from 'socket.io-client'
 
-// TODO better socket management & teardown?
-// const url = `http://10.0.0.184:4000/iot`
-const url = window.location.origin.replace(':3000', ':4000').replace('https', 'https') + '/iot'
+const SOCKET_ROOT = window.location.origin.replace(':3000', ':4000').replace('https', 'http')
 
-console.log('urlz', url)
-const socket: Socket = io(url, {
-  transports: ['websocket'],
-  rejectUnauthorized: false
-})
+const sockets = new Map<string, Socket>()
+
+const getSocket = (endpoint: string) => {
+  const url = `${SOCKET_ROOT}/${endpoint}`
+  let socket = sockets.get(url)
+  if (!socket) {
+    sockets.set(url, socket = io(url, {
+      transports: ['websocket'],
+      rejectUnauthorized: false
+    }))
+  }
+  return socket
+}
 
 export const useSocket = <Response,>(
+  endpoint: string,
   eventName: string,
   handleCustomEvent: (event: Response) => void
 ): {
   connected: boolean,
   socket: Socket
 } => {
-  const [connected, setConnected] = useState(socket.connected)
+  const socket = getSocket(endpoint)
+
+  const [connected, setConnected] = useState(socket.connected ?? false)
 
   const handleCustomEventRef = useRef(handleCustomEvent)
   handleCustomEventRef.current = handleCustomEvent
