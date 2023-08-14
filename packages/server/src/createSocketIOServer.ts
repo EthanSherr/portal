@@ -2,7 +2,7 @@ import { Socket, Server as SocketIOServer } from 'socket.io'
 import https from 'https'
 import http from 'http'
 
-export const createSocketIOServer = (httpServer: http.Server) => {
+export const createSocketIOServer = (httpServer: http.Server | https.Server) => {
   const io = new SocketIOServer(httpServer, {
     cors: {
       origin: '*'

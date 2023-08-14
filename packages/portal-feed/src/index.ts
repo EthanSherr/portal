@@ -1,13 +1,14 @@
 import io from 'socket.io-client'
 import { attachFakeFeed } from './attachFakeFeed'
 
-const ROOT = 'http://10.0.0.184'
+const ROOT = 'https://10.0.0.184'
 const PORT = 4000
 const CAMERA_ID = `Cam-1`
 
 const main = async () => {
 
   const url = `${[ROOT, PORT].join(':')}/iot`
+  console.log('connecting to url', url)
   const socket = io(url)
 
   let tearDown = new Array<() => void>()
@@ -34,6 +35,10 @@ const main = async () => {
   socket.on('consumer-left', (data) => {
     console.log(data + ' has left the stream');
   });
+
+  socket.on('connect_error', (err) => {
+    console.log('connection_error due to ', err.message)
+  })
 
 
 

@@ -3,7 +3,7 @@ import { Socket, io } from 'socket.io-client'
 
 // TODO better socket management & teardown?
 // const url = `http://10.0.0.184:4000/iot`
-const url = window.location.origin.replace(':3000', ':4000').replace('https', 'http') + '/iot'
+const url = window.location.origin.replace(':3000', ':4000').replace('https', 'https') + '/iot'
 
 console.log('url', url)
 const socket: Socket = io(url)
