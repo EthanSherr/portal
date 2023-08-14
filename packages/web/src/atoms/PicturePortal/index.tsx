@@ -31,7 +31,7 @@ export const VideoMaterial: FC<{ cameraId: string }> = ({ cameraId }) => {
   }, [connected, socket])
 
   if (!data) {
-    return // <meshBasicMaterial color='red' />
+    return <meshBasicMaterial color='red' />
   }
 
   return <Base64Texture base64={data} />
@@ -39,7 +39,7 @@ export const VideoMaterial: FC<{ cameraId: string }> = ({ cameraId }) => {
 
 export const Base64Texture: FC<{ base64: string }> = ({ base64 }) => {
   const texture1 = useTexture(base64)
-  const texture2 = new TextureLoader().load(base64)
-  console.log('texture', texture1, texture2)
-  return <meshBasicMaterial map={texture2} toneMapped={false} />
+  // const texture2 = new TextureLoader().load(base64)
+  // console.log('texture', texture1, texture2)
+  return <meshBasicMaterial map={texture1} toneMapped={false} />
 }

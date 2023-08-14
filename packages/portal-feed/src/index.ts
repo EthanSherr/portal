@@ -1,7 +1,8 @@
 import io from 'socket.io-client'
 import { attachFakeFeed } from './attachFakeFeed'
+import { attachNodejsCam } from './attachNodejsCam'
 
-const ROOT = 'https://10.0.0.184'
+const ROOT = 'http://10.0.0.184'
 const PORT = 4000
 const CAMERA_ID = `Cam-1`
 
@@ -22,12 +23,14 @@ const main = async () => {
     socket.sendBuffer = []
     socket.emit("pi-cam-init", CAMERA_ID)
 
-    console.log('sending fake img')
+    // console.log('sending fake img')
     tearDown.push(attachFakeFeed(socket, CAMERA_ID))
+    // tearDown.push(attachNodejsCam(socket, CAMERA_ID))
 
     // attachNodejsCam(socket, CAMERA_ID) // TODO
   })
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (dat) => {
+    console.log('feed disconnected', dat)
     tearDown.forEach(teardownFn => teardownFn())
     tearDown = []
   })
