@@ -5,8 +5,11 @@ import { Socket, io } from 'socket.io-client'
 // const url = `http://10.0.0.184:4000/iot`
 const url = window.location.origin.replace(':3000', ':4000').replace('https', 'https') + '/iot'
 
-console.log('url', url)
-const socket: Socket = io(url)
+console.log('urlz', url)
+const socket: Socket = io(url, {
+  transports: ['websocket'],
+  rejectUnauthorized: false
+})
 
 export const useSocket = <Response,>(
   eventName: string,

@@ -9,7 +9,10 @@ const main = async () => {
 
   const url = `${[ROOT, PORT].join(':')}/iot`
   console.log('connecting to url', url)
-  const socket = io(url)
+  const socket = io(url, {
+    // transports: ['websocket'],
+    rejectUnauthorized: false
+  })
 
   let tearDown = new Array<() => void>()
 
@@ -37,7 +40,7 @@ const main = async () => {
   });
 
   socket.on('connect_error', (err) => {
-    console.log('connection_error due to ', err.message)
+    console.log('connection_error due to ', err)
   })
 
 
