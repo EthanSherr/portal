@@ -17,7 +17,7 @@ const getSocket = (endpoint: string) => {
   return socket
 }
 
-export const useSocket = <Response,>(
+export const useSocketOld = <Response,>(
   endpoint: string,
   eventName: string,
   handleCustomEvent: (event: Response) => void

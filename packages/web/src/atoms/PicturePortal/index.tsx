@@ -1,7 +1,7 @@
 import { FC, Suspense, useEffect, useState } from 'react'
 // import {  } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
-import { useSocket } from '../../useSocket'
+import { useSocket, useSocketEvent } from '../../hooks/useSocket'
 import { TextureLoader } from 'three'
 
 export type PicturePortalProps = {
@@ -20,9 +20,14 @@ export const PicturePortal: FC<PicturePortalProps> = ({ cameraId }) => {
 export const VideoMaterial: FC<{ cameraId: string }> = ({ cameraId }) => {
   const [data, setData] = useState<string>()
 
-  const { connected, socket } = useSocket('iot', 'consumer-receive-feed', (data: string) => {
-    console.log('received data', data.length)
-    setData(data)
+  const { connected, socket } = useSocket({ endpoint: 'iot' })
+
+  useSocketEvent(socket, {
+    eventName: 'consumer-receive-feed',
+    onEventHandler: (data: string) => {
+      console.log('received data', data.length)
+      setData(data)
+    }
   })
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useSocket } from "../useSocket"
+import { useSocket, useSocketEvent } from "../hooks/useSocket"
 import { ImageTracker, ZapparCamera, ZapparCanvas } from "@zappar/zappar-react-three-fiber"
 import { PicturePortal } from "../atoms/PicturePortal"
 import { OrbitControls } from "@react-three/drei"
@@ -9,9 +9,14 @@ const CAMERA_ID = `Cam-1`
 export const SocketPage = () => {
   const [data, setData] = useState<string>()
 
-  const { connected, socket } = useSocket('iot', 'consumer-receive-feed', (data: string) => {
-    console.log('data is set', data.length)
-    setData(data)
+  const { connected, socket } = useSocket({ endpoint: 'iot' })
+
+  useSocketEvent(socket, {
+    eventName: 'consumer-receive-feed',
+    onEventHandler: (data: string) => {
+      console.log('data is set', data.length)
+      setData(data)
+    }
   })
 
   useEffect(() => {
@@ -28,7 +33,6 @@ export const SocketPage = () => {
 
 
     <ZapparCanvas style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 1 }}>
-      {/* <ZapparCamera /> */}
       <OrbitControls />
 
       <PicturePortal cameraId={'Cam-1'} />
