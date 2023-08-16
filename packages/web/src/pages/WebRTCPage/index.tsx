@@ -1,9 +1,10 @@
 import { FC, RefObject, useEffect, useMemo, useRef, useState } from "react"
-import { useUserMedia } from "./useUserMedia"
+import { useUserMedia } from "../../hooks/useUserMedia"
 import { useSocket, useSocketEvent } from "../../hooks/useSocket"
 import { Canvas } from "@react-three/fiber"
 import { OrbitControls } from "@react-three/drei"
 import { VideoTexture } from "three"
+import { ImageTracker, ZapparCamera, ZapparCanvas } from "@zappar/zappar-react-three-fiber"
 
 export const WebRTCPage: FC = () => {
   const [sockets, setSockets] = useState(new Array<string>())
@@ -32,7 +33,7 @@ export const WebRTCPage: FC = () => {
       return
     }
     video.srcObject = stream
-
+    setReadyToMount(true)
     stream.getTracks().forEach(track => peerConnection.addTrack(track, stream))
   })
 
@@ -95,49 +96,48 @@ export const WebRTCPage: FC = () => {
     })
   }
 
+  const [trackerVisible, setTrackerVisible] = useState(true)
+  const [readyToMount, setReadyToMount] = useState(false)
+
+  const targetFile = new URL('../../assets/example-tracking-image.zpt', import.meta.url).href
+
+
   return (
-    <div className="container">
-      <header className="header">
-        <div className="logo-container">
-          <img src="./img/doge.png" alt="doge logo" className="logo-img" />
-          <h1 className="logo-text">
-            Socket {connected ? 'connected' : 'disconnected'}
-          </h1>
+    <>
+      <span>connected {connected ? 'true' : 'false'}</span><br />
+      <span>ready to mount {readyToMount ? 'true' : 'false'}</span>
+      {<div style={{ position: 'absolute', zIndex: 1, width: '100%', backgroundColor: 'red' }}>
+        <div>
+          <h3>Active Users:</h3>
+          <ul>
+            {sockets.map(socket =>
+              <li key={socket}>
+                <button onClick={() => callUser(socket)}>{socket}</button>
+              </li>
+            )}
+          </ul>
         </div>
-      </header>
-      <div className="content-container">
-        <div className="active-users-panel" id="active-user-container">
-          <h3 className="panel-title">Active Users:
-            <ul>
-              {
-                sockets.map(socket =>
-                  <li key={socket}>
-                    <button onClick={() => callUser(socket)}>{socket}</button>
-                  </li>
-                )
-              }
-            </ul>
-          </h3>
+        <div style={{ opacity: 0.3, position: 'absolute', zIndex: -1 }}>
+          <video autoPlay muted ref={localVideoRef} style={{ width: 100, height: 100 }} />
+          <video autoPlay ref={remoteVideoRef} style={{ width: 100, height: 100 }} />
         </div>
-        <div className="video-chat-container">
-          <h2 className="talk-info" id="talking-with-info">
-            Select active user on the left menu.
-          </h2>
-          <div className="video-container">
-            <video autoPlay className="remote-video" id="remote-video" ref={remoteVideoRef} style={{ backgroundColor: 'blue' }} />
-            <video autoPlay muted className="local-video" id="local-video" ref={localVideoRef} style={{ backgroundColor: 'red' }} />
-          </div>
-        </div>
-      </div>
-      <Canvas style={{ width: '100%', height: '100%' }}>
+      </div>}
+      <ZapparCanvas style={{ width: '100%', height: '100%' }}>
+        <ZapparCamera />
         <OrbitControls />
-        <mesh>
-          <planeGeometry args={[2, 2]} />
-          <VideoElementTexture videoRef={localVideoRef} />
-        </mesh>
-        <ambientLight intensity={300} />
-      </Canvas>
-    </div>
+
+        <ImageTracker
+          onNotVisible={() => setTrackerVisible(false)}
+          onVisible={() => setTrackerVisible(true)}
+          targetImage={targetFile}>
+          <mesh position={[0, 0, -1]}>
+            <planeGeometry args={[0.5, 0.5]} />
+            {/* <meshBasicMaterial color={'red'} /> */}
+            <VideoElementTexture videoRef={remoteVideoRef} />
+          </mesh>
+        </ImageTracker>
+      </ZapparCanvas>
+    </>
   )
 }
 
