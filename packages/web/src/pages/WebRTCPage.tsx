@@ -73,8 +73,8 @@ export const WebRTCPage: FC = () => {
 
   // 1A
   const callUser = async (socketId: string) => {
-    const offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
-    await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
+    const offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
+    await peerConnection.setLocalDescription(new RTCSessionDescription(offer))
 
     console.log('emit call-user')
     socket.emit("send-offer", {

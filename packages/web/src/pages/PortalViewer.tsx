@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from 'react'
+import { FC, useMemo, useRef, useState } from 'react'
 import { useSocket, useSocketEvent } from '../hooks/useSocket'
 import { useAsyncEffect } from '../hooks/useAsyncEffect'
 
@@ -7,16 +7,12 @@ type RTCHandhsakeState = 'connecting' | 'waiting-for-answer' | 'done'
 
 export const PortalViewer: FC = () => {
   const { connected, socket } = useSocket({ endpoint: 'portal' })
-  const peerConnectionRef = useRef<RTCPeerConnection>()
+  // const peerConnectionRef = useRef<RTCPeerConnection>()
   const [rtchHandshakeState, setRtchHandshakeState] = useState<RTCHandhsakeState>('connecting')
 
-
-  const createPeerConnection = async () => {
-
-    peerConnectionRef.current = new RTCPeerConnection()
-    const peerConnection = peerConnectionRef.current
-
-    peerConnection.ontrack = ({ streams: [stream] }) => {
+  const peerConnection = useMemo(() => {
+    const pc = new RTCPeerConnection()
+    pc.ontrack = ({ streams: [stream] }) => {
       const video = remoteVideoRef.current
       if (!video) {
         console.error('unable to set peerConnection track, videoRef is null')
@@ -24,19 +20,21 @@ export const PortalViewer: FC = () => {
       }
       console.log('ontrack stream', stream)
       video.srcObject = stream!
-      video.play()
+      // video.play()
     }
 
-    const offer = await peerConnection.createOffer()
-    // await peerConnection.setLocalDescription(new RTCSessionDescription(offer))
-    await peerConnection.setLocalDescription(offer)
-    console.log('emit send-offer')
+    return pc
+  }, [])
 
+
+  const createPeerConnection = async () => {
+    const offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
+    await peerConnection.setLocalDescription(new RTCSessionDescription(offer))
+
+    console.log('emit send-offer', offer)
     setRtchHandshakeState('waiting-for-answer')
     socket.emit('send-offer', { offer, to: 'Cam-1' }, async ({ answer }: { answer: RTCSessionDescriptionInit }) => {
-      console.log('callback!')
-      console.log('received answer to offer', answer)
-      const peerConnection = peerConnectionRef.current
+      console.log('received answer to offer', { answer })
       if (!peerConnection) {
         console.error("peerConnection undefined on received send-answer, bailing")
         return

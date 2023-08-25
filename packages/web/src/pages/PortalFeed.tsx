@@ -13,12 +13,10 @@ export const PortalFeed = () => {
   }, [])
 
   const oneTime = useRef(false)
-
   useEffect(() => {
     if (!connected) return
-    if (oneTime.current) return
-
-    oneTime.current = true
+    // if (oneTime.current) return
+    // oneTime.current = true
     console.log('emit register-portal')
     socket.emit('register-portal', 'Cam-1')
   }, [connected, socket])
@@ -35,7 +33,7 @@ export const PortalFeed = () => {
   useSocketEvent<{ offer: RTCSessionDescriptionInit, from: string }, RTCSessionDescriptionInit>(socket, {
     eventName: 'get-answer',
     onEventHandler: async ({ offer, from }, callback) => {
-      console.log('portal received offer', { offer, from })
+      console.log('get-answer', offer, '\n from', from)
 
       await peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
       const answer = await peerConnection.createAnswer()
