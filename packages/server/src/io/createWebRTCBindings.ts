@@ -23,29 +23,18 @@ export const createWebRtcBindings = (io: Server) => {
         })
       }
 
-      socket.on('call-user', ({ offer, to }: { offer: RTCSessionDescriptionInit, to: string }) => {
+      socket.on('send-offer', ({ offer, to }: { offer: RTCSessionDescriptionInit, to: string }, callback: ({ answer, from }: { answer: RTCSessionDescriptionInit, from: string }) => void) => {
         const target = activeSockets.get(to)
         if (!target) {
           console.error('call-user: could not find target', to, 'no session!')
           return
         }
 
-        target.emit('call-made', {
+        target.emit('get-answer', {
           offer,
           from: socket.id
-        })
-      })
-
-      socket.on('make-answer', ({ answer, to }: { answer: RTCSessionDescriptionInit, to: string }) => {
-        const target = activeSockets.get(to)
-        if (!target) {
-          console.error('call-made fail: could not find target', to, 'no session!')
-          return
-        }
-
-        target.emit('answer-made', {
-          from: socket.id,
-          answer
+        }, ({ answer }: { answer: RTCSessionDescriptionInit }) => {
+          callback({ answer, from: to })
         })
       })
 

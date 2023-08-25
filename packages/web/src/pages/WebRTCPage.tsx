@@ -1,6 +1,6 @@
 import { FC, RefObject, useEffect, useMemo, useRef, useState } from "react"
-import { useUserMedia } from "../../hooks/useUserMedia"
-import { useSocket, useSocketEvent } from "../../hooks/useSocket"
+import { useUserMedia } from "../hooks/useUserMedia"
+import { useSocket, useSocketEvent } from "../hooks/useSocket"
 import { Canvas } from "@react-three/fiber"
 import { OrbitControls } from "@react-three/drei"
 import { VideoTexture } from "three"
@@ -12,10 +12,10 @@ export const WebRTCPage: FC = () => {
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
 
-  const peerConnection = useMemo(() => new RTCPeerConnection(), [])
+  const peerConnection = useMemo(() => {
+    const pc = new RTCPeerConnection()
 
-  useEffect(() => {
-    peerConnection.ontrack = ({ streams: [stream] }) => {
+    pc.ontrack = ({ streams: [stream] }) => {
       const video = remoteVideoRef.current
       if (!video) {
         console.error('unable to set peerConnection track, videoRef is null')
@@ -24,7 +24,9 @@ export const WebRTCPage: FC = () => {
       console.log('ontrack stream', stream)
       video.srcObject = stream!
     }
-  }, [peerConnection])
+
+    return pc
+  }, [])
 
   useUserMedia((stream) => {
     const video = localVideoRef.current
@@ -53,9 +55,9 @@ export const WebRTCPage: FC = () => {
   })
 
   // 1b
-  useSocketEvent(socket, {
-    eventName: 'call-made',
-    onEventHandler: async ({ offer, from }: { offer: RTCSessionDescriptionInit, from: string }) => {
+  useSocketEvent<{ offer: RTCSessionDescriptionInit, from: string }, { answer: RTCSessionDescriptionInit }>(socket, {
+    eventName: 'get-answer',
+    onEventHandler: async ({ offer, from }, callback) => {
       console.log('call-made')
       await peerConnection.setRemoteDescription(
         new RTCSessionDescription(offer)
@@ -63,31 +65,11 @@ export const WebRTCPage: FC = () => {
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
 
-      socket.emit("make-answer", {
-        answer,
-        to: from
-      })
+      callback({ answer })
     }
   })
 
   const isAlreadyCallingRef = useRef(false)
-  useSocketEvent(socket, {
-    eventName: 'answer-made',
-    onEventHandler: async ({ answer, from }: { answer: RTCSessionDescriptionInit, from: string }) => {
-      console.log('answer-made')
-      await peerConnection.setRemoteDescription(
-        new RTCSessionDescription(answer)
-      )
-
-      if (!isAlreadyCallingRef.current) {
-        console.log('call again')
-        callUser(from)
-        isAlreadyCallingRef.current = true
-      }
-    }
-  })
-
-
 
   // 1A
   const callUser = async (socketId: string) => {
@@ -95,16 +77,26 @@ export const WebRTCPage: FC = () => {
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
 
     console.log('emit call-user')
-    socket.emit("call-user", {
+    socket.emit("send-offer", {
       offer,
       to: socketId
+    }, async ({ answer, from }: { answer: RTCSessionDescriptionInit, from: string }) => {
+      console.log('answer-received')
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(answer)
+      )
+
+      if (!isAlreadyCallingRef.current) {
+        console.log('call again')
+        // callUser(from)
+        isAlreadyCallingRef.current = true
+      }
     })
   }
 
-  const [trackerVisible, setTrackerVisible] = useState(true)
   const [readyToMount, setReadyToMount] = useState(false)
 
-  const targetFile = new URL('../../assets/example-tracking-image.zpt', import.meta.url).href
+  const targetFile = new URL('../assets/example-tracking-image.zpt', import.meta.url).href
 
 
   return (
