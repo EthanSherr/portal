@@ -143,10 +143,3 @@ export const WebRTCPage: FC = () => {
   )
 }
 
-const VideoElementTexture = ({ videoRef }: { videoRef: RefObject<HTMLVideoElement> }) => {
-  const texture = useMemo(() =>
-    new VideoTexture(videoRef.current!)
-    , [])
-
-  return <meshBasicMaterial map={texture} toneMapped={false} />
-}
