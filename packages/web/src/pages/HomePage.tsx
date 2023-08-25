@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom"
 
 const links = [
-  './PortalCamPage',
-  './PortalXrPage',
-  './PortalZapparPage',
-  './SocketPage',
-  './WebRTCPage'
+  // './PortalCamPage',
+  // './PortalXrPage',
+  // './PortalZapparPage',
+  // './SocketPage',
+  './WebRTCPage',
+  '/PortalFeed',
+  '/PortalViewer'
 ]
 
 export const HomePage = () => {

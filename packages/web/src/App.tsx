@@ -6,6 +6,8 @@ import { PortalXrPage } from "./pages/PortalXrPage"
 import { PortalZapparPage } from "./pages/PortalZapparPage"
 import { SocketPage } from "./pages/SocketPage"
 import { WebRTCPage } from "./pages/WebRTCPage"
+import { PortalFeed } from "./pages/PortalFeed"
+import { PortalViewer } from "./pages/PortalViewer"
 
 const router = createBrowserRouter([{
   path: '/',
@@ -25,6 +27,12 @@ const router = createBrowserRouter([{
 }, {
   path: '/WebRTCPage',
   element: <WebRTCPage />
+}, {
+  path: '/PortalFeed',
+  element: <PortalFeed />
+}, {
+  path: '/PortalViewer',
+  element: <PortalViewer />
 }])
 
 export const App: FC = () =>

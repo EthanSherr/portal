@@ -58,12 +58,12 @@ export const useSocket = ({ endpoint, ...paramsRest }: UseSocketParams): UseSock
   return { connected, socket }
 }
 
-export type SocketEventParams<T> = {
+export type SocketEventParams<T, R> = {
   eventName: string,
-  onEventHandler: (response: T) => void | Promise<void>
+  onEventHandler: (response: T, callback: (response: R) => void) => void | Promise<void>
 }
 
-export const useSocketEvent = <T,>(socket: Socket, { eventName, onEventHandler }: SocketEventParams<T>) => {
+export const useSocketEvent = <T, R,>(socket: Socket, { eventName, onEventHandler }: SocketEventParams<T, R>) => {
 
   const onEventHandlerRef = usePassthroughRef(onEventHandler)
 

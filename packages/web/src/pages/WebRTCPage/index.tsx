@@ -40,7 +40,7 @@ export const WebRTCPage: FC = () => {
 
   const { connected, socket } = useSocket({ endpoint: 'webrtc' })
 
-  useSocketEvent<{ users: Array<string> }>(socket, {
+  useSocketEvent<{ users: Array<string> }, unknown>(socket, {
     eventName: 'update-user-list',
     onEventHandler: (data) => {
       setSockets(users => [...users, ...data.users])
@@ -52,6 +52,7 @@ export const WebRTCPage: FC = () => {
     onEventHandler: (removedUser: string) => setSockets(users => users.filter(user => removedUser != user))
   })
 
+  // 1b
   useSocketEvent(socket, {
     eventName: 'call-made',
     onEventHandler: async ({ offer, from }: { offer: RTCSessionDescriptionInit, from: string }) => {
@@ -76,9 +77,10 @@ export const WebRTCPage: FC = () => {
       console.log('answer-made')
       await peerConnection.setRemoteDescription(
         new RTCSessionDescription(answer)
-      );
+      )
 
       if (!isAlreadyCallingRef.current) {
+        console.log('call again')
         callUser(from)
         isAlreadyCallingRef.current = true
       }
@@ -86,10 +88,13 @@ export const WebRTCPage: FC = () => {
   })
 
 
+
+  // 1A
   const callUser = async (socketId: string) => {
-    const offer = await peerConnection.createOffer();
+    const offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
 
+    console.log('emit call-user')
     socket.emit("call-user", {
       offer,
       to: socketId
@@ -118,11 +123,17 @@ export const WebRTCPage: FC = () => {
           </ul>
         </div>
         <div style={{ opacity: 0.3, position: 'absolute', zIndex: -1 }}>
-          <video autoPlay muted ref={localVideoRef} style={{ width: 100, height: 100 }} />
-          <video autoPlay ref={remoteVideoRef} style={{ width: 100, height: 100 }} />
+          <div style={{ width: 100, height: 100, position: 'relative' }}>
+            local
+            <video autoPlay muted ref={localVideoRef} style={{ position: 'absolute', width: '100%', height: '100%' }} />
+          </div>
+          <div style={{ width: 100, height: 100, position: 'relative' }}>
+            remote
+            <video autoPlay ref={remoteVideoRef} style={{ position: 'absolute', width: '100%', height: '100%' }} />
+          </div>
         </div>
       </div>}
-      <ZapparCanvas style={{ width: '100%', height: '100%' }}>
+      {/* <ZapparCanvas style={{ width: '100%', height: '100%' }}>
         <ZapparCamera />
         <OrbitControls />
 
@@ -132,11 +143,10 @@ export const WebRTCPage: FC = () => {
           targetImage={targetFile}>
           <mesh position={[0, 0, -1]}>
             <planeGeometry args={[0.5, 0.5]} />
-            {/* <meshBasicMaterial color={'red'} /> */}
             <VideoElementTexture videoRef={remoteVideoRef} />
           </mesh>
         </ImageTracker>
-      </ZapparCanvas>
+      </ZapparCanvas> */}
     </>
   )
 }
