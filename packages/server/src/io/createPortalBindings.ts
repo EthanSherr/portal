@@ -1,7 +1,8 @@
 import { Socket, Server as SocketIOServer } from 'socket.io'
 
 type PortalData = {
-  socket: Socket
+  portal: Socket
+  viewers: Array<Socket>
 }
 
 class PortalManager {
@@ -14,8 +15,12 @@ class PortalManager {
   }
 
   registerPortal = (socket: Socket, name: string) => {
-    console.log(`registerPortal(${socket.id}, ${name})`)
-    this.portals.set(name, { socket })
+    console.log(`registerPortal("${socket.id}", "${name}")`)
+    // if (this.portals.has(name)) {
+    //   console.error('Error: socket is already registered', { name, socketId: this.portals.get(name)?.portal.id })
+    //   return
+    // }
+    this.portals.set(name, { portal: socket, viewers: [] })
     this.debug()
   }
 
@@ -46,6 +51,7 @@ export const createPortalBindings = (io: SocketIOServer) => {
 
   io.of('portal')
     .on('connection', (socket) => {
+      console.log('connection', socket.id)
       portalManager.setSocket(socket)
 
       socket.on('register-portal', (name: string) => {
@@ -62,10 +68,14 @@ export const createPortalBindings = (io: SocketIOServer) => {
         const payload = { offer, from: socket.id }
         console.log('send-offer => get-portal-session')
 
-        portalData.socket.emit('get-answer', payload, (answer: RTCSessionDescriptionInit) => {
+        portalData.portal.emit('get-answer', payload, (answer: RTCSessionDescriptionInit) => {
           handleOnAnswer({ answer })
         })
 
+      })
+
+      socket.on('disconnect', () => {
+        console.log('socket.id', socket.id)
       })
     })
 }

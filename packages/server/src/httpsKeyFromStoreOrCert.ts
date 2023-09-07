@@ -18,6 +18,7 @@ export const httpsKeyFromStoreOrCert = async () => {
   const pemObj = await httpsKeyCert()
 
   await writeFile('./out/pem.json', JSON.stringify(pemObj, null, 4), { encoding: 'utf-8' })
+  await writeFile('./out/localhost.crt', pemObj.certificate, { encoding: 'utf-8' })
 
   return pemObj
 }
@@ -27,8 +28,6 @@ const httpsKeyCert = async () => {
     pem.createCertificate({
       days: 60,
       selfSigned: true,
-      organization: 'ethan-is-cool',
-      commonName: '10.0.0.184:3000'
     }, (err, keys) =>
       err ? rej(err) : res(keys)
     ))

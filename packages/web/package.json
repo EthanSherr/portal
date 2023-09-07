@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "set HTTPS=true&&react-scripts start",
+    "start": "cross-env HTTPS=true SSL_CRT_FILE=../server/sec2/cert.crt SSL_KEY_FILE=../server/sec2/cert.key react-scripts start",
     "start:http": "react-scripts start",
     "start:vite": "vite",
     "build": "tsc && vite build",
@@ -31,6 +31,7 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
+    "cross-env": "^7.0.3",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",

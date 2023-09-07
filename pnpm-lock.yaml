@@ -62,6 +62,7 @@ importers:
       '@typescript-eslint/parser': ^6.0.0
       '@vitejs/plugin-react': ^4.0.3
       '@zappar/zappar-react-three-fiber': ^2.4.5
+      cross-env: ^7.0.3
       eslint: ^8.45.0
       eslint-plugin-react-hooks: ^4.6.0
       eslint-plugin-react-refresh: ^0.4.3
@@ -94,6 +95,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 6.3.0_5h6hp7tdd7jdmkqlm2gg6hem6i
       '@typescript-eslint/parser': 6.3.0_qj3u6ezxe2airdzjq3nyoxe24m
       '@vitejs/plugin-react': 4.0.4_vite@4.4.9
+      cross-env: 7.0.3
       eslint: 8.47.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.47.0
       eslint-plugin-react-refresh: 0.4.3_eslint@8.47.0
@@ -4825,6 +4827,14 @@ packages:
 
   /create-require/1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
+    dev: true
+
+  /cross-env/7.0.3:
+    resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
+    engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
+    hasBin: true
+    dependencies:
+      cross-spawn: 7.0.3
     dev: true
 
   /cross-spawn/7.0.3:
