@@ -25,7 +25,6 @@ export const PortalViewer: FC = () => {
         console.error('unable to set peerConnection track, videoRef is null')
         return
       }
-      console.log('ontrack stream', stream)
       video.srcObject = stream!
     }
 
@@ -52,7 +51,9 @@ export const PortalViewer: FC = () => {
       // must be called twice? Perhaps the feed's remote must be set after the viewer's local?
       if (repeatRef.current) {
         repeatRef.current = false
-        createPeerConnection()
+        setTimeout(async () => {
+          createPeerConnection()
+        }, 1000)
       }
     })
   }
@@ -65,11 +66,11 @@ export const PortalViewer: FC = () => {
 
   const [trackerVisible, setTrackerVisible] = useState(false)
 
-  const debug = false
+  const flatDebug = false
 
   return (
     <>
-      {debug && <div>
+      {flatDebug && <div>
         <h3>cameraId: {cameraId}</h3>
         <h3>socket {connected ? 'connected' : 'disconnected'}</h3>
         <h3>rtcHandshakestate {rtchHandshakeState}</h3>
@@ -77,11 +78,12 @@ export const PortalViewer: FC = () => {
         <video autoPlay style={{ width: 200, height: 200, backgroundColor: 'blue' }} ref={remoteVideoRef} />
       </div>}
 
-      {!debug && <video autoPlay style={{ opacity: 0, position: 'absolute' }} ref={remoteVideoRef} />}
+      {!flatDebug && <video autoPlay style={{ opacity: 0, position: 'absolute' }} ref={remoteVideoRef} />}
       {<div style={{ position: 'absolute', zIndex: 1, color: 'white' }}>
         <h1>Cam: {cameraId}</h1>
         <h1>Status: {rtchHandshakeState}</h1>
         <h1>trackerVisible: {trackerVisible ? 'yes' : 'no, aim at qr code'}</h1>
+        <button onClick={createPeerConnection}>reconnect video</button>
       </div>}
       <ZapparCanvas style={{ width: '100%', height: '100%' }}>
         <ZapparCamera />

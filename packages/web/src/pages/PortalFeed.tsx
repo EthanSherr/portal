@@ -12,6 +12,7 @@ export const PortalFeed = () => {
 
   const { ready, createPeerConnection } = usePortalPeerConnection(stream)
 
+  // answer the incoming connection
   useSocketEvent<{ offer: RTCSessionDescriptionInit, from: string }, RTCSessionDescriptionInit>(socket, {
     eventName: 'get-answer',
     onEventHandler: async ({ offer, from }, callback) => {
@@ -30,7 +31,7 @@ export const PortalFeed = () => {
   const [viewers, setViewers] = useState(new Array<string>())
   useSocketEvent<{ viewers: Array<string> }, void>(socket, {
     eventName: 'add-viewers',
-    onEventHandler: ({ viewers: newViewers }) => setViewers([...viewers, ...newViewers])
+    onEventHandler: ({ viewers: newViewers }) => setViewers([...new Set([...viewers, ...newViewers])])
   })
 
   useSocketEvent<{ viewers: Array<string> }, void>(socket, {

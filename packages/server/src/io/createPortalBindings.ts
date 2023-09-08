@@ -70,8 +70,11 @@ export const createPortalBindings = (io: SocketIOServer) => {
 
         portalData.portal.emit('get-answer', payload, (answer: RTCSessionDescriptionInit) => {
           handleOnAnswer({ answer })
+          portalData.portal.emit('add-viewers', { viewers: [socket.id] })
+          socket.on('disconnect', () => {
+            portalData.portal.emit('remove-viewers', { viewers: [socket.id] })
+          })
         })
-
       })
 
       socket.on('disconnect', () => {
