@@ -12,7 +12,6 @@ export const PortalViewer: FC = () => {
 
   const { connected, socket } = useSocket({
     endpoint: 'portal', onConnected: () => {
-      doAgainRef.current = true
       createPeerConnection()
     }
   })
@@ -33,8 +32,7 @@ export const PortalViewer: FC = () => {
     return pc
   }, [])
 
-  const doAgainRef = useRef(true)
-
+  const repeatRef = useRef(true)
   const createPeerConnection = async () => {
     const offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer))
@@ -49,14 +47,12 @@ export const PortalViewer: FC = () => {
       }
 
       await peerConnection.setRemoteDescription(new RTCSessionDescription(answer))
-
-
       setRtchHandshakeState('done')
 
-
-      if (doAgainRef.current) {
-        doAgainRef.current = false
-        // createPeerConnection()
+      // must be called twice? Perhaps the feed's remote must be set after the viewer's local?
+      if (repeatRef.current) {
+        repeatRef.current = false
+        createPeerConnection()
       }
     })
   }
@@ -69,35 +65,36 @@ export const PortalViewer: FC = () => {
 
   const [trackerVisible, setTrackerVisible] = useState(false)
 
+  const debug = false
+
   return (
     <>
-      <div>
+      {debug && <div>
         <h3>cameraId: {cameraId}</h3>
         <h3>socket {connected ? 'connected' : 'disconnected'}</h3>
         <h3>rtcHandshakestate {rtchHandshakeState}</h3>
         <button onClick={createPeerConnection}>connect</button>
         <video autoPlay style={{ width: 200, height: 200, backgroundColor: 'blue' }} ref={remoteVideoRef} />
-      </div>
+      </div>}
+
+      {!debug && <video autoPlay style={{ opacity: 0, position: 'absolute' }} ref={remoteVideoRef} />}
+      {<div style={{ position: 'absolute', zIndex: 1, color: 'white' }}>
+        <h1>Cam: {cameraId}</h1>
+        <h1>Status: {rtchHandshakeState}</h1>
+        <h1>trackerVisible: {trackerVisible ? 'yes' : 'no, aim at qr code'}</h1>
+      </div>}
       <ZapparCanvas style={{ width: '100%', height: '100%' }}>
         <ZapparCamera />
         <OrbitControls />
-
-
         <ImageTracker
           onNotVisible={() => setTrackerVisible(false)}
           onVisible={() => setTrackerVisible(true)}
           targetImage={targetFile}>
-          {trackerVisible && <mesh position={[0, 0, -1]}>
+          {trackerVisible && <mesh position={[0, 0, 0]}>
             <planeGeometry args={[2, 2]} />
             <VideoElementTexture videoRef={remoteVideoRef} />
           </mesh>}
         </ImageTracker>
-
-
-        {/* <mesh position={[0, 0, -1]}>
-          <planeGeometry args={[0.5, 0.5]} />
-          <VideoElementTexture videoRef={remoteVideoRef} />
-        </mesh> */}
       </ZapparCanvas>
     </>
   )

@@ -72,7 +72,8 @@ export const useSocketEvent = <T, R,>(socket: Socket, { eventName, onEventHandle
   const onEventHandlerRef = usePassthroughRef(onEventHandler)
 
   useEffect(() => {
-    const handler = onEventHandlerRef.current
+    const handler = (response: T, callback: (response: R) => void) => onEventHandlerRef.current(response, callback)
+
     socket.on(eventName, handler)
     return () => {
       socket.off(eventName, handler)
