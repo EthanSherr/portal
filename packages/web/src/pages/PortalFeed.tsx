@@ -6,12 +6,9 @@ import { usePortalPeerConnection } from '../hooks/usePortalPeerConnection'
 
 export const PortalFeed = () => {
   const { connected, socket } = useSocket({ endpoint: 'portal' })
+
   const [stream, setStream] = useState<MediaStream | null>(null)
-  useUserMedia((stream) => {
-    videoRef.current!.srcObject = stream
-    console.log('stream is set!')
-    setStream(stream)
-  })
+  useUserMedia((stream) => setStream(videoRef.current!.srcObject = stream))
 
   const { ready, createPeerConnection } = usePortalPeerConnection(stream)
 
@@ -29,6 +26,18 @@ export const PortalFeed = () => {
     }
   })
 
+  // add & remove viewers
+  const [viewers, setViewers] = useState(new Array<string>())
+  useSocketEvent<{ viewers: Array<string> }, void>(socket, {
+    eventName: 'add-viewers',
+    onEventHandler: ({ viewers: newViewers }) => setViewers([...viewers, ...newViewers])
+  })
+
+  useSocketEvent<{ viewers: Array<string> }, void>(socket, {
+    eventName: 'remove-viewers',
+    onEventHandler: ({ viewers: removeViewers }) => setViewers(viewers.filter(viewer => !removeViewers.includes(viewer)))
+  })
+
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -36,17 +45,28 @@ export const PortalFeed = () => {
   const portalUrl = `${window.location.origin}/PortalViewer/${inputValue}`
   const onSubmit = () => {
     socket.emit('register-portal', inputValue)
-    QRCode.toDataURL(canvasRef.current!, portalUrl, { scale: 20 })
+    QRCode.toDataURL(canvasRef.current!, portalUrl, { scale: 20, color: { dark: '#0000ff' } })
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <video autoPlay style={{ width: 200, height: 200, backgroundColor: 'black' }} ref={videoRef} muted />
-      <input value={inputValue} onChange={e => setInputValue(e.target.value)} />
-      <button onClick={onSubmit}>submit</button>
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <video autoPlay style={{ width: 200, height: 200, backgroundColor: 'black' }} ref={videoRef} muted />
+          <input value={inputValue} onChange={e => setInputValue(e.target.value)} />
+          <button onClick={onSubmit}>submit</button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <h3>Viewers</h3>
+          <ul>
+            {viewers.map(viewer => <li key={viewer}>{viewer}</li>)}
+          </ul>
+        </div>
+      </div>
       <span>/portal socket {connected ? 'connected' : 'disonnected'}</span>
-      <span>{portalUrl}</span>
+      <a href={portalUrl}>{portalUrl}</a>
       <canvas ref={canvasRef} />
-    </div>
+
+    </div >
   )
 }
