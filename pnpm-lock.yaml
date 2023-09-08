@@ -81,6 +81,7 @@ importers:
       socket.io-client: ^4.7.2
       three: ^0.155.0
       typescript: ^5.0.2
+      use-sound: ^4.0.1
       vite: ^4.4.5
       vite-plugin-mkcert: ^1.16.0
       vite-plugin-wasm: ^3.2.2
@@ -97,6 +98,7 @@ importers:
       react-router-dom: 6.15.0_biqbaboplfbrettd7655fr4n2y
       socket.io-client: 4.7.2
       three: 0.155.0
+      use-sound: 4.0.1_react@18.2.0
     devDependencies:
       '@types/qrcode': 1.5.2
       '@types/react': 18.2.20
@@ -7152,6 +7154,10 @@ packages:
     engines: {node: '>= 6.0.0'}
     dev: true
 
+  /howler/2.2.3:
+    resolution: {integrity: sha512-QM0FFkw0LRX1PR8pNzJVAY25JhIWvbKMBFM4gqk+QdV+kPXOhleWGCB6AiAF/goGjIHK2e/nIElplvjQwhr0jg==}
+    dev: false
+
   /hpack.js/2.1.6:
     resolution: {integrity: sha512-zJxVehUdMGIKsRaNt7apO2Gqp0BdqW5yaiGHXXmbpvxgBYVZnAql+BJb4RO5ad2MgpbZKn5G6nMnegrH1FcNYQ==}
     dependencies:
@@ -12131,6 +12137,15 @@ packages:
 
   /url-set-query/1.0.0:
     resolution: {integrity: sha512-3AChu4NiXquPfeckE5R5cGdiHCMWJx1dwCWOmWIL4KHAziJNOFIYJlpGFeKDvwLPHovZRCxK3cYlwzqI9Vp+Gg==}
+    dev: false
+
+  /use-sound/4.0.1_react@18.2.0:
+    resolution: {integrity: sha512-hykJ86kNcu6y/FzlSHcQxhjSGMslZx2WlfLpZNoPbvueakv4OF3xPxEtGV2YmculrIaH0tPp9LtG4jgy17xMWg==}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      howler: 2.2.3
+      react: 18.2.0
     dev: false
 
   /use-sync-external-store/1.2.0_react@18.2.0:

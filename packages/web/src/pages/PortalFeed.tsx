@@ -1,7 +1,10 @@
 import { useRef, useState } from 'react'
+import QRCode from 'qrcode'
+import notificationSound from '../assets/notification.mp3'
+import useSound from 'use-sound'
 import { useSocket, useSocketEvent } from '../hooks/useSocket'
 import { useUserMedia } from '../hooks/useUserMedia'
-import QRCode from 'qrcode'
+
 import { usePortalPeerConnection } from '../hooks/usePortalPeerConnection'
 
 export const PortalFeed = () => {
@@ -27,11 +30,17 @@ export const PortalFeed = () => {
     }
   })
 
+
+
   // add & remove viewers
   const [viewers, setViewers] = useState(new Array<string>())
+  const [playNotification] = useSound(notificationSound)
   useSocketEvent<{ viewers: Array<string> }, void>(socket, {
     eventName: 'add-viewers',
-    onEventHandler: ({ viewers: newViewers }) => setViewers([...new Set([...viewers, ...newViewers])])
+    onEventHandler: ({ viewers: newViewers }) => {
+      playNotification()
+      setViewers([...new Set([...viewers, ...newViewers])])
+    }
   })
 
   useSocketEvent<{ viewers: Array<string> }, void>(socket, {
