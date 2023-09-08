@@ -31,7 +31,7 @@ const router = createBrowserRouter([{
   path: '/PortalFeed',
   element: <PortalFeed />
 }, {
-  path: '/PortalViewer',
+  path: '/PortalViewer/:cameraId',
   element: <PortalViewer />
 }])
 

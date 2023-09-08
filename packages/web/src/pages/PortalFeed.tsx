@@ -1,6 +1,7 @@
-import { FC, useEffect, useMemo, useRef } from 'react'
+import { FC, useEffect, useMemo, useRef, useState } from 'react'
 import { useSocket, useSocketEvent } from '../hooks/useSocket'
 import { useUserMedia } from '../hooks/useUserMedia'
+import QRCode from 'qrcode'
 
 export const PortalFeed = () => {
   const { connected, socket } = useSocket({ endpoint: 'portal' })
@@ -11,15 +12,6 @@ export const PortalFeed = () => {
       console.log('connection state change', peerConnection.connectionState)
     }
   }, [])
-
-  const oneTime = useRef(false)
-  useEffect(() => {
-    if (!connected) return
-    // if (oneTime.current) return
-    // oneTime.current = true
-    console.log('emit register-portal')
-    socket.emit('register-portal', 'Cam-1')
-  }, [connected, socket])
 
   const tracksadded = useRef(false)
   useUserMedia((stream) => {
@@ -44,9 +36,27 @@ export const PortalFeed = () => {
   })
 
 
-  const videoRef = useRef<HTMLVideoElement>(null)
 
-  return <div> /portal socket {connected ? 'connected' : 'disonnected'}
-    <video autoPlay style={{ width: 200, height: 200, backgroundColor: 'black' }} ref={videoRef} muted></video>
-  </div>
+
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const [inputValue, setInputValue] = useState('')
+  const portalUrl = `${window.location.origin}/PortalViewer/${inputValue}`
+  const onSubmit = () => {
+    socket.emit('register-portal', inputValue)
+    QRCode.toDataURL(canvasRef.current!, portalUrl, { scale: 20 })
+  }
+
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <video autoPlay style={{ width: 200, height: 200, backgroundColor: 'black' }} ref={videoRef} muted />
+      <input value={inputValue} onChange={e => setInputValue(e.target.value)} />
+      <button onClick={onSubmit}>submit</button>
+      <span>/portal socket {connected ? 'connected' : 'disonnected'}</span>
+      <span>{portalUrl}</span>
+      <canvas ref={canvasRef} style={{ width: '500px', height: '500px', backgroundColor: 'blue' }}></canvas>
+    </div>
+  )
 }

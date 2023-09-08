@@ -13,9 +13,9 @@ export const createSocketIOServer = (httpServer: http.Server | https.Server) => 
     }
   })
 
-  createIotBindings(io)
-  createChatBindings(io)
-  createWebRtcBindings(io)
+  // createIotBindings(io)
+  // createChatBindings(io)
+  // createWebRtcBindings(io)
   createPortalBindings(io)
 
   io.sockets.on("error", e => {

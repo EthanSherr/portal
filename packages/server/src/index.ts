@@ -26,9 +26,6 @@ const main = async () => {
       readFile('./sec2/cert.crt', { encoding: 'utf-8' })
     ])
 
-    console.log('key: ', key)
-    console.log('cert: ', cert)
-
     server = https.createServer({
       key,
       cert,
@@ -41,9 +38,9 @@ const main = async () => {
 
   createSocketIOServer(server)
 
-  app.get('/', (_, res) => {
-    res.sendFile(path.resolve('./public/index.html'));
-  });
+  // app.get('/', (_, res) => {
+  //   res.sendFile(path.resolve('./public/index.html'));
+  // });
 
   server.listen(PORT, () => {
     console.log(`started on *:${PORT}`)

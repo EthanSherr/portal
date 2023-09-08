@@ -12,6 +12,7 @@ const getSocket = (endpoint: string) => {
   const url = `${SOCKET_ROOT}/${endpoint}`
   let socket = sockets.get(url)
   if (!socket) {
+    SOCKET_ROOT
     sockets.set(url, socket = io(url, {
       // transports: ['websocket'],
       reconnection: true,
