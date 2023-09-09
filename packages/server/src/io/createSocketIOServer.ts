@@ -1,9 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io'
-import https from 'https'
-import http from 'http'
-import { createIotBindings } from './createIotBindings'
-import { createChatBindings } from './createChatBindings'
-import { createWebRtcBindings } from './createWebRTCBindings'
+import type https from 'https'
+import type http from 'http'
 import { createPortalBindings } from './createPortalBindings'
 
 export const createSocketIOServer = (httpServer: http.Server | https.Server) => {
@@ -13,17 +10,9 @@ export const createSocketIOServer = (httpServer: http.Server | https.Server) => 
     }
   })
 
-  // createIotBindings(io)
-  // createChatBindings(io)
-  // createWebRtcBindings(io)
   createPortalBindings(io)
 
   io.sockets.on("error", e => {
     console.error('io.socket error:\n', e)
   })
 }
-
-
-
-
-

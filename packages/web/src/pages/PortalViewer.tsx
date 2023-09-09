@@ -62,7 +62,9 @@ export const PortalViewer: FC = () => {
 
   // const targetFile = new URL('../assets/example-tracking-image.zpt', import.meta.url).href
   // const targetFile = new URL('../assets/logo.png.zpt', import.meta.url).href
-  const targetFile = new URL('../assets/cam-1.png.zpt', import.meta.url).href
+  // const targetFile = new URL('../assets/cam-1.png.zpt', import.meta.url).href
+  const targetFile = new URL('../assets/paperwindowsonlinecam1.png.zpt', import.meta.url).href
+
 
   const [trackerVisible, setTrackerVisible] = useState(false)
 

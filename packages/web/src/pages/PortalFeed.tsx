@@ -30,8 +30,6 @@ export const PortalFeed = () => {
     }
   })
 
-
-
   // add & remove viewers
   const [viewers, setViewers] = useState(new Array<string>())
   const [playNotification] = useSound(notificationSound)
@@ -52,10 +50,11 @@ export const PortalFeed = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const [inputValue, setInputValue] = useState('')
-  const portalUrl = `${window.location.origin}/PortalViewer/${inputValue}`
+  const [domainOverrideValue, setDomainOverrideValue] = useState('https://paperwindows.online')
+  const portalUrl = `${domainOverrideValue || window.location.origin}/PortalViewer/${inputValue}`
   const onSubmit = () => {
     socket.emit('register-portal', inputValue)
-    QRCode.toDataURL(canvasRef.current!, portalUrl, { scale: 20, color: { dark: '#0000ff' } })
+    QRCode.toDataURL(canvasRef.current!, portalUrl, { scale: 20 })
   }
 
   return (
@@ -63,7 +62,14 @@ export const PortalFeed = () => {
       <div style={{ display: 'flex', flexDirection: 'row' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <video autoPlay style={{ width: 200, height: 200, backgroundColor: 'black' }} ref={videoRef} muted />
-          <input value={inputValue} onChange={e => setInputValue(e.target.value)} />
+          <div>
+            <label id='camera-id-label'>CameraID Label</label>
+            <input aria-labelledby='camera-id-label' value={inputValue} onChange={e => setInputValue(e.target.value)} />
+          </div>
+          <div>
+            <label id='domain-override-label'>Domain Override Label</label>
+            <input aria-labelledby='domain-override-label' value={domainOverrideValue} onChange={e => setDomainOverrideValue(e.target.value)} />
+          </div>
           <button onClick={onSubmit}>submit</button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
