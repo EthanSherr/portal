@@ -20,13 +20,14 @@ export const PortalViewer: FC = () => {
   const peerConnection = useMemo(() => {
     const pc = new RTCPeerConnection()
     pc.ontrack = ({ streams: [stream] }) => {
-      const video = remoteVideoRef.current
-      if (!video) {
+      const v1 = remoteVideoRef.current
+      if (!v1) {
         console.error('unable to set peerConnection track, videoRef is null')
         return
       }
       console.log('pc.ontrack', stream)
-      video.srcObject = stream!
+      v1.srcObject = stream!
+
     }
 
     return pc
@@ -59,6 +60,7 @@ export const PortalViewer: FC = () => {
     })
   }
 
+  // const flatRemoteVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
 
   // const targetFile = new URL('../assets/example-tracking-image.zpt', import.meta.url).href
@@ -73,15 +75,21 @@ export const PortalViewer: FC = () => {
 
   return (
     <>
-      {flatDebug && <div>
-        <h3>cameraId: {cameraId}</h3>
-        <h3>socket {connected ? 'connected' : 'disconnected'}</h3>
-        <h3>rtcHandshakestate {rtchHandshakeState}</h3>
-        <button onClick={createPeerConnection}>connect</button>
-        <video autoPlay style={{ width: 200, height: 200, backgroundColor: 'blue' }} ref={remoteVideoRef} />
-      </div>}
-
-      {!flatDebug && <video autoPlay style={{ opacity: 0, position: 'absolute' }} ref={remoteVideoRef} />}
+      <div>
+        {flatDebug && <>
+          <h3>cameraId: {cameraId}</h3>
+          <h3>socket {connected ? 'connected' : 'disconnected'}</h3>
+          <h3>rtcHandshakestate {rtchHandshakeState}</h3>
+          <button onClick={createPeerConnection}>connect</button>
+        </>}
+        <video autoPlay style={{
+          width: 200,
+          height: 200,
+          backgroundColor: 'blue',
+          opacity: flatDebug ? 1 : 0,
+          position: flatDebug ? 'inherit' : 'absolute'
+        }} ref={remoteVideoRef} />
+      </div>
       {<div style={{ position: 'absolute', zIndex: 1, color: 'white' }}>
         <h1>Cam: {cameraId}</h1>
         <h1>Status: {rtchHandshakeState}</h1>
