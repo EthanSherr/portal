@@ -12,7 +12,7 @@ export const PortalViewer: FC = () => {
 
   const { connected, socket } = useSocket({
     endpoint: 'portal', onConnected: () => {
-      createPeerConnection()
+      // createPeerConnection()
     }
   })
   const [rtchHandshakeState, setRtchHandshakeState] = useState<RTCHandhsakeState>('connecting')
@@ -25,6 +25,7 @@ export const PortalViewer: FC = () => {
         console.error('unable to set peerConnection track, videoRef is null')
         return
       }
+      console.log('pc.ontrack', stream)
       video.srcObject = stream!
     }
 
@@ -68,7 +69,7 @@ export const PortalViewer: FC = () => {
 
   const [trackerVisible, setTrackerVisible] = useState(false)
 
-  const flatDebug = false
+  const flatDebug = true
 
   return (
     <>
