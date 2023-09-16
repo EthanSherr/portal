@@ -6,6 +6,7 @@
   "scripts": {
     "start": "cross-env HTTPS=true SSL_CRT_FILE=../server/sec2/cert.crt SSL_KEY_FILE=../server/sec2/cert.key react-scripts start",
     "build": "react-scripts build",
+    "build:dev": "cross-env DEV_MODE=true react-scripts build",
     "start:http": "react-scripts start",
     "start:vite": "vite",
     "build:vite": "tsc && vite build",

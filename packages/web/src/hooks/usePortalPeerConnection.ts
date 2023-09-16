@@ -1,8 +1,10 @@
+import { useMemo } from "react"
+import { peerConnectionConfig } from "../helpers/webrtcConfig"
 
 
 export const usePortalPeerConnection = (stream: MediaStream | null) => {
 
-  const peerConnectionsFrom = new Map<string, RTCPeerConnection>()
+  const peerConnectionsFrom = useMemo(() => new Map<string, RTCPeerConnection>(), [])
 
   return {
     ready: Boolean(stream),
@@ -12,9 +14,10 @@ export const usePortalPeerConnection = (stream: MediaStream | null) => {
       if (pc) {
         console.error(`createPeerConnection("${from}"): peerConnection already exists`)
       } else {
-        peerConnectionsFrom.set(from, pc = new RTCPeerConnection())
+        peerConnectionsFrom.set(from, pc = new RTCPeerConnection(peerConnectionConfig))
         stream?.getTracks()?.forEach(track => pc!.addTrack(track, stream))
       }
+      console.log('peer connections', peerConnectionsFrom)
       return pc
     },
     destroyPeerConnection: () => {

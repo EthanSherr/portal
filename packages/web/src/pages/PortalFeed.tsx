@@ -36,7 +36,9 @@ export const PortalFeed = () => {
   useSocketEvent<{ viewers: Array<string> }, void>(socket, {
     eventName: 'add-viewers',
     onEventHandler: ({ viewers: newViewers }) => {
-      playNotification()
+      if (newViewers.some(v => !viewers.includes(v))) {
+        playNotification()
+      }
       setViewers([...new Set([...viewers, ...newViewers])])
     }
   })
@@ -49,7 +51,7 @@ export const PortalFeed = () => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState('Cam-1')
   const [domainOverrideValue, setDomainOverrideValue] = useState('https://paperwindows.online')
   const portalUrl = `${domainOverrideValue || window.location.origin}/PortalViewer/${inputValue}`
   const onSubmit = () => {

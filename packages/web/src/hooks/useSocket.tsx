@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Socket, io } from 'socket.io-client'
 import { usePassthroughRef } from './usePassthroughRef'
 
-const SOCKET_ROOT = window.location.origin.replace(':3000', ':4000') //.replace('https', 'http')
+const SOCKET_ROOT = window.location.origin.replace(':3000', '') //.replace('https', 'http')
 
 console.log('debug SOCKET_ROOT', SOCKET_ROOT)
 

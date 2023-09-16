@@ -3,22 +3,35 @@ import { useSocket } from '../hooks/useSocket'
 import { ImageTracker, ZapparCamera, ZapparCanvas } from '@zappar/zappar-react-three-fiber'
 import { OrbitControls } from '@react-three/drei'
 import { VideoElementTexture } from '../atoms/VideoElementTexture'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
+import { peerConnectionConfig } from '../helpers/webrtcConfig'
 
 type RTCHandhsakeState = 'connecting' | 'waiting-for-answer' | 'done'
 
 export const PortalViewer: FC = () => {
   const { cameraId } = useParams()
+  const [searchParams] = useSearchParams()
+  const flatDebug = Boolean(searchParams.get('debug'))
+
+  const [iceState, setIceState] = useState('')
+  const [signalingState, setSignalingState] = useState('')
+  const [pcConnectionState, setPcConnectionState] = useState('')
 
   const { connected, socket } = useSocket({
     endpoint: 'portal', onConnected: () => {
-      // createPeerConnection()
+      createPeerConnection()
     }
   })
   const [rtchHandshakeState, setRtchHandshakeState] = useState<RTCHandhsakeState>('connecting')
 
   const peerConnection = useMemo(() => {
-    const pc = new RTCPeerConnection()
+    const pc = new RTCPeerConnection(peerConnectionConfig)
+
+    console.log('pc init values')
+    setIceState(pc.iceConnectionState)
+    setSignalingState(pc.signalingState)
+    setPcConnectionState(pc.connectionState)
+
     pc.ontrack = ({ streams: [stream] }) => {
       const v1 = remoteVideoRef.current
       if (!v1) {
@@ -27,7 +40,21 @@ export const PortalViewer: FC = () => {
       }
       console.log('pc.ontrack', stream)
       v1.srcObject = stream!
+    }
 
+    pc.oniceconnectionstatechange = () => {
+      console.log('pc oniceconnectionstatechange', pc.iceConnectionState)
+      setIceState(pc.iceConnectionState)
+    }
+
+    pc.onsignalingstatechange = () => {
+      console.log('pc onsignalingstatechange', pc.signalingState)
+      setSignalingState(pc.signalingState)
+    }
+
+    pc.onconnectionstatechange = () => {
+      console.log('pc onconnectionstatechange', pc.connectionState)
+      setPcConnectionState(pc.connectionState)
     }
 
     return pc
@@ -35,6 +62,7 @@ export const PortalViewer: FC = () => {
 
   const repeatRef = useRef(true)
   const createPeerConnection = async () => {
+    console.log("================createPeerConnection==============")
     const offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer))
 
@@ -53,14 +81,11 @@ export const PortalViewer: FC = () => {
       // must be called twice? Perhaps the feed's remote must be set after the viewer's local?
       if (repeatRef.current) {
         repeatRef.current = false
-        setTimeout(async () => {
-          createPeerConnection()
-        }, 1000)
+        createPeerConnection()
       }
     })
   }
 
-  // const flatRemoteVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
 
   // const targetFile = new URL('../assets/example-tracking-image.zpt', import.meta.url).href
@@ -68,18 +93,21 @@ export const PortalViewer: FC = () => {
   // const targetFile = new URL('../assets/cam-1.png.zpt', import.meta.url).href
   const targetFile = new URL('../assets/paperwindowsonlinecam1.png.zpt', import.meta.url).href
 
-
   const [trackerVisible, setTrackerVisible] = useState(false)
-
-  const flatDebug = true
+  const hideArView = false
 
   return (
     <>
       <div>
         {flatDebug && <>
-          <h3>cameraId: {cameraId}</h3>
-          <h3>socket {connected ? 'connected' : 'disconnected'}</h3>
-          <h3>rtcHandshakestate {rtchHandshakeState}</h3>
+          <pre>{JSON.stringify({
+            cameraId,
+            socketIsConnected: connected,
+            rtchHandshakeState,
+            pcConnectionState,
+            iceState,
+            signalingState
+          }, null, 2)}</pre>
           <button onClick={createPeerConnection}>connect</button>
         </>}
         <video autoPlay style={{
@@ -91,24 +119,25 @@ export const PortalViewer: FC = () => {
         }} ref={remoteVideoRef} />
       </div>
       {<div style={{ position: 'absolute', zIndex: 1, color: 'white' }}>
-        <h1>Cam: {cameraId}</h1>
-        <h1>Status: {rtchHandshakeState}</h1>
-        <h1>trackerVisible: {trackerVisible ? 'yes' : 'no, aim at qr code'}</h1>
-        <button onClick={createPeerConnection}>reconnect video</button>
+        {!trackerVisible && <h1>Aim your camera at the qr code</h1>}
+        {/* <button onClick={createPeerConnection}>reconnect video</button> */}
       </div>}
-      <ZapparCanvas style={{ width: '100%', height: '100%' }}>
-        <ZapparCamera />
-        <OrbitControls />
-        <ImageTracker
-          onNotVisible={() => setTrackerVisible(false)}
-          onVisible={() => setTrackerVisible(true)}
-          targetImage={targetFile}>
-          {trackerVisible && <mesh position={[0, 0, 0]}>
-            <planeGeometry args={[2, 2]} />
-            <VideoElementTexture videoRef={remoteVideoRef} />
-          </mesh>}
-        </ImageTracker>
-      </ZapparCanvas>
+      {!hideArView &&
+        <ZapparCanvas style={{ width: '100%', height: '100%' }}>
+          <ZapparCamera />
+          <OrbitControls />
+          <ImageTracker
+            onNotVisible={() => setTrackerVisible(false)}
+            onVisible={() => setTrackerVisible(true)}
+            targetImage={targetFile}>
+            {trackerVisible && <mesh position={[0, 0, 0]}>
+              <planeGeometry args={[2, 2]} />
+              <VideoElementTexture videoRef={remoteVideoRef} />
+            </mesh>}
+          </ImageTracker>
+        </ZapparCanvas>
+      }
+
     </>
   )
 }
