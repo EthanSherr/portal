@@ -1,14 +1,17 @@
-import { FC, useMemo, useRef, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSocket } from '../hooks/useSocket'
 import { ImageTracker, ZapparCamera, ZapparCanvas } from '@zappar/zappar-react-three-fiber'
 import { OrbitControls } from '@react-three/drei'
 import { VideoElementTexture } from '../atoms/VideoElementTexture'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { peerConnectionConfig } from '../helpers/webrtcConfig'
+import { useAsyncEffect } from '../hooks/useAsyncEffect'
 
-type RTCHandhsakeState = 'connecting' | 'waiting-for-answer' | 'done'
+type RTCHandhsakeState = 'new' | 'connecting' | 'waiting-for-answer' | 'done'
 
-export const PortalViewer: FC = () => {
+const PortalViewer: FC = () => {
+
+  console.log('NODE_ENV', process.env.NODE_ENV)
   const { cameraId } = useParams()
   const [searchParams] = useSearchParams()
   const flatDebug = Boolean(searchParams.get('debug'))
@@ -22,7 +25,7 @@ export const PortalViewer: FC = () => {
       createPeerConnection()
     }
   })
-  const [rtchHandshakeState, setRtchHandshakeState] = useState<RTCHandhsakeState>('connecting')
+  const [rtchHandshakeState, setRtchHandshakeState] = useState<RTCHandhsakeState>('new')
 
   const peerConnection = useMemo(() => {
     const pc = new RTCPeerConnection(peerConnectionConfig)
@@ -62,6 +65,7 @@ export const PortalViewer: FC = () => {
 
   const repeatRef = useRef(true)
   const createPeerConnection = async () => {
+    setRtchHandshakeState('connecting')
     console.log("================createPeerConnection==============")
     const offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer))
@@ -140,4 +144,79 @@ export const PortalViewer: FC = () => {
 
     </>
   )
+}
+
+const begging = [
+  'Come on... Ethan wants you to check it out',
+  'Really? you won\'t?',
+  'Come on please?',
+  `I'm not doing anything evil, just wanna show you a cool AR display!`,
+  'Come on, I built this for you...!',
+  'Aww man, I really want to show it to you it is super cool :)',
+  `pff fine, I dont want you to see it.`,
+  'Off with yee!',
+  `ok - now you're just messing up my analytics`,
+  'Quit it!',
+  'ok we are done here...',
+  'OOO almost got you there! Lol...',
+  'Ok... bye now.'
+]
+
+export const PortalViewerWrapper: FC = () => {
+  const { hasPermission, getPermission } = useHasPermissions()
+  const [beggingIndex, setBeggingIndex] = useState(0)
+
+
+
+  if (hasPermission !== 'granted') {
+    return (
+      <div style={{ width: '100%', height: '100%', backgroundColor: 'black', display: 'flex', justifyContent: 'center', alignContent: 'center', color: 'white', textAlign: 'center' }}>
+        {hasPermission === 'notgranted' && <div>
+          <h1>Welcome </h1>
+          <h2>to ethan's portal project</h2>
+          <p style={{ padding: 16 }}>I'm going to need access to your video in order to show you a cool AR thing... </p>
+          {begging.slice(0, beggingIndex).map(b => <p key={b}>{b}</p>)}
+          <div style={{ display: 'flex', flexDirection: beggingIndex > 10 ? 'row' : 'row-reverse', justifyContent: 'center', padding: 16, gap: 8 }}>
+            <button style={{ height: 44, borderRadius: 8, padding: 8, minWidth: 60 }} onClick={() => setBeggingIndex(i => i + 1)}>no way</button>
+            <button style={{ height: 44, borderRadius: 8, padding: 8, minWidth: 60 }} onClick={getPermission}>ok</button>
+          </div>
+        </div>}
+      </div>
+    )
+  }
+
+  return <PortalViewer />
+}
+
+const useHasPermissions = () => {
+  const [hasPermission, setHasPermission] = useState<'granted' | 'notgranted' | 'unknown'>()
+
+  const checkPermission = useCallback(async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      console.log(devices)
+      const audioInputDevices = devices.filter(({ kind, deviceId }) => kind === 'audioinput' && deviceId)
+      const videoInputDevices = devices.filter(({ kind, deviceId }) => kind === 'videoinput' && deviceId)
+      if (audioInputDevices.length > 0 && videoInputDevices.length > 0) {
+        setHasPermission('granted')
+      } else {
+        setHasPermission('notgranted')
+      }
+
+    } catch (error) {
+      setHasPermission('notgranted')
+    }
+  }, [setHasPermission])
+
+  const getPermission = useCallback(async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+    setHasPermission('granted')
+    stream.getTracks().forEach((track) => track.stop()) // Release the stream when done
+  }, [checkPermission])
+
+  useEffect(() => {
+    checkPermission()
+  }, [])
+
+  return { hasPermission, getPermission }
 }

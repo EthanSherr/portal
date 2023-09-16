@@ -3,7 +3,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom"
 import { HomePage } from "./pages/HomePage"
 
 import { PortalFeed } from "./pages/PortalFeed"
-import { PortalViewer } from "./pages/PortalViewer"
+import { PortalViewerWrapper } from "./pages/PortalViewer"
 
 const router = createBrowserRouter([{
   path: '/',
@@ -13,7 +13,7 @@ const router = createBrowserRouter([{
   element: <PortalFeed />
 }, {
   path: '/PortalViewer/:cameraId',
-  element: <PortalViewer />
+  element: <PortalViewerWrapper />
 }])
 
 export const App: FC = () =>
