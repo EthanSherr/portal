@@ -65,7 +65,7 @@ const PortalViewer: FC = () => {
   const createPeerConnection = async () => {
     setRtchHandshakeState('connecting')
     console.log("================createPeerConnection==============")
-    const offer = await peerConnection.createOffer({ offerToReceiveVideo: false, offerToReceiveAudio: true })
+    const offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer))
 
     console.log('emit send-offer', offer)
