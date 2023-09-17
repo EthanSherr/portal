@@ -10,8 +10,6 @@ import { useAsyncEffect } from '../hooks/useAsyncEffect'
 type RTCHandhsakeState = 'new' | 'connecting' | 'waiting-for-answer' | 'done'
 
 const PortalViewer: FC = () => {
-
-  console.log('NODE_ENV', process.env.NODE_ENV)
   const { cameraId } = useParams()
   const [searchParams] = useSearchParams()
   const flatDebug = Boolean(searchParams.get('debug'))
@@ -67,7 +65,7 @@ const PortalViewer: FC = () => {
   const createPeerConnection = async () => {
     setRtchHandshakeState('connecting')
     console.log("================createPeerConnection==============")
-    const offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
+    const offer = await peerConnection.createOffer({ offerToReceiveVideo: false, offerToReceiveAudio: true })
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer))
 
     console.log('emit send-offer', offer)
@@ -114,13 +112,16 @@ const PortalViewer: FC = () => {
           }, null, 2)}</pre>
           <button onClick={createPeerConnection}>connect</button>
         </>}
-        <video autoPlay style={{
-          width: 200,
-          height: 200,
-          backgroundColor: 'blue',
-          opacity: flatDebug ? 1 : 0,
-          position: flatDebug ? 'inherit' : 'absolute'
-        }} ref={remoteVideoRef} />
+        <video
+          autoPlay
+          playsInline style={{
+            width: 200,
+            height: 200,
+            backgroundColor: 'blue',
+            opacity: flatDebug ? 1 : 0,
+            position: flatDebug ? 'inherit' : 'absolute'
+          }}
+          ref={remoteVideoRef} />
       </div>
       {<div style={{ position: 'absolute', zIndex: 1, color: 'white' }}>
         {!trackerVisible && <h1>Aim your camera at the qr code</h1>}
